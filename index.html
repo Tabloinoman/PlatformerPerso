@@ -36,7 +36,22 @@ h1 i{font-style:normal;color:var(--red)}
 .tab:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 #stagewrap{position:relative}
 #stage{position:relative;aspect-ratio:16/9;width:100%;border:3px solid var(--ink);border-radius:16px;overflow:hidden;background:#0c0a14;box-shadow:7px 7px 0 var(--ink)}
-#stagewrap:fullscreen #stage{border:0;border-radius:0;box-shadow:none;height:100%;aspect-ratio:auto}
+#stagebtns{position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:3}
+#stagebtns button{width:40px;height:40px;display:grid;place-items:center;padding:0;border-radius:12px;border:2px solid rgba(255,255,255,.55);background:rgba(16,12,28,.5);color:#fff;cursor:pointer}
+#stagebtns button:hover{background:rgba(16,12,28,.8)}
+#stagebtns button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.ic-play,.ic-shrink,#btn-pause.paused .ic-pause{display:none}
+#btn-pause.paused .ic-play,body.fs .ic-shrink{display:block}
+body.fs .ic-grow{display:none}
+body.fs{overflow:hidden}
+body.fs #stagewrap{position:fixed;inset:0;z-index:100;background:#0c0a14}
+body.fs #stage{width:100%;height:100%;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}
+body.fs #stagebtns{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}
+body.fs .touch.l{left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom))}
+body.fs .touch.r{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}
+body.fs .touch{gap:14px}
+body.fs .touch button{width:72px;height:72px}
+body.fs .touch .jump{width:92px;height:92px}
 #game{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(14,10,24,.42);padding:16px}
 #overlay[hidden]{display:none}
@@ -53,7 +68,7 @@ h1 i{font-style:normal;color:var(--red)}
 .touch button{width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(20,14,34,.35);color:#fff;font:800 22px Nunito,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
 .touch button.down{background:rgba(228,87,46,.75)}
 .touch .jump{width:80px;height:80px}
-@media (pointer:coarse){.touch{display:flex}}
+@media (pointer:coarse){.touch{display:flex}#stagebtns button{width:44px;height:44px}}
 .bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin-top:22px}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label,.lbl{font-size:13px;font-weight:800;color:var(--muted)}
@@ -122,6 +137,10 @@ pre,.scroll{overflow-x:auto}
       <div id="stage">
         <canvas id="game" tabindex="0" aria-label="Jeu de plateforme"></canvas>
         <div id="overlay" data-mode="ready"><div class="ov"><h2 id="ov-title">Trouve les 3 clés</h2><p id="ov-text"></p><div id="ov-btns"></div></div></div>
+        <div id="stagebtns">
+          <button id="btn-pause" aria-label="Pause"><svg class="ic-pause" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg><svg class="ic-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></button>
+          <button id="btn-fs" aria-label="Plein écran"><svg class="ic-grow" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="ic-shrink" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button>
+        </div>
         <div class="touch l"><button data-touch="left" aria-label="Gauche">◀</button><button data-touch="right" aria-label="Droite">▶</button></div>
         <div class="touch r"><button data-touch="down" aria-label="Descendre">▼</button><button class="jump" data-touch="jump" aria-label="Sauter">▲</button></div>
       </div>
@@ -133,9 +152,9 @@ pre,.scroll{overflow-x:auto}
       <div class="field"><label for="theme">Ambiance <span id="theme-name"></span></label><select id="theme"><option value="auto">Selon la seed</option><option value="jour">Jour</option><option value="crepuscule">Crépuscule</option><option value="nuit">Nuit</option><option value="brume">Brume</option></select></div>
       <label class="tog"><input type="checkbox" id="snd" checked> Sons</label>
       <label class="tog"><input type="checkbox" id="fg" checked> Premier plan</label>
-      <button class="btn" id="full">Plein écran</button>
+      <button class="btn primary" id="full">Plein écran</button>
     </div>
-    <p class="help"><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> pour courir · <kbd>Espace</kbd>, <kbd>↑</kbd> ou <kbd>Z</kbd> pour sauter (maintenir = plus haut) · <kbd>↓</kbd> + saut pour traverser une plateforme · <kbd>P</kbd> pause · <kbd>R</kbd> recommencer. Même seed, même niveau : partage-la pour défier quelqu’un.</p>
+    <p class="help"><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> pour courir · <kbd>Espace</kbd>, <kbd>↑</kbd> ou <kbd>Z</kbd> pour sauter (maintenir = plus haut) · <kbd>↓</kbd> + saut pour traverser une plateforme · <kbd>P</kbd> pause · <kbd>R</kbd> recommencer · <kbd>F</kbd> plein écran. Même seed, même niveau : partage-la pour défier quelqu’un.</p>
   </section>
 
   <section class="panel" id="panel-sheets" hidden>
@@ -1035,7 +1054,7 @@ function extractSheet(wd, key, prm) {
 }
 
 /* ====================== JEU : génération, physique, rendu, lumières ====================== */
-const VH = 352;                       // hauteur de la vue en px de jeu (11 tuiles)
+let VH = 352;                         // hauteur de la vue en px de jeu (11 tuiles, plus en portrait)
 const GRAV_UP = 1900, GRAV_FALL = 2600, GRAV_CUT = 4200, JUMP_V = Math.sqrt(2 * GRAV_UP * 3.5 * TILE), RUN_V = 215;
 const THEMES = {
   jour: { name: 'Jour', sky: ['#5aa8f2', '#a9d8ff', '#e6f4ff'], amb: [255, 252, 244], haze: [205, 228, 250], hazeA: [0.42, 0.24, 0.1], light: 0.3, player: 0, sun: { x: 0.78, y: 0.15, r: 22, col: '#fff7d6', glow: [255, 240, 190] }, rays: 0.06, stars: 0, fog: 0, bloom: 0.5 },
@@ -1192,7 +1211,7 @@ function generateLevel(seedStr, opt) {
 }
 
 /* ---------- état ---------- */
-const G = { L: null, p: null, cam: { x: 0, y: 0 }, t: 0, parts: [], toasts: [], shake: 0, state: 'ready', timer: 0, z: 2, VW: 640, tileCache: null, fg: true, sound: true };
+const G = { L: null, p: null, cam: { x: 0, y: 0 }, t: 0, parts: [], toasts: [], shake: 0, state: 'ready', timer: 0, z: 2, VW: 640, tileCache: null, fg: true, sound: true, hudRight: 0 };
 const input = { left: false, right: false, down: false, jump: false, jumpPressed: false };
 function startLevel(L) {
   G.L = L; G.parts = []; G.toasts = []; G.t = 0; G.timer = 0; G.shake = 0;
@@ -1497,15 +1516,21 @@ function render(ctx, cw, ch) {
   drawHUD(ctx, cw, ch, z);
 }
 function drawHUD(ctx, cw, ch, z) {
-  const p = G.p, L = G.L, u = z * 1.0, pad = 10 * u;
+  const p = G.p, L = G.L, u = Math.min(z, cw / 430), pad = 10 * u; // HUD lisible même en portrait
   const icon = (id, x, y, size, img) => { const s = SPR[id], k = size / Math.max(s.cell.w, s.cell.h); ctx.drawImage(img || s.img, x, y, s.cell.w * k, s.cell.h * k); };
-  ctx.fillStyle = 'rgba(16,12,28,.55)'; ctx.beginPath(); ctx.roundRect(pad - 4 * u, pad - 4 * u, (Math.max(3, p.hp) * 19 + 3 * 21 + 22) * u, 28 * u, 8 * u); ctx.fill();
-  for (let i = 0; i < Math.max(3, p.hp); i++) { ctx.globalAlpha = i < p.hp ? 1 : 0.25; icon('heart', pad + i * 19 * u, pad, 20 * u); }
+  const tm = G.timer, ts = `${Math.floor(tm / 60)}:${String(Math.floor(tm % 60)).padStart(2, '0')}`;
+  ctx.font = `800 ${14 * u}px ${FONT}`; const tw = ctx.measureText(ts).width;
+  const nh = Math.max(3, p.hp), kx = pad + nh * 19 * u + 14 * u, tx = kx + 3 * 21 * u + 12 * u, panelW = tx + tw + 10 * u - (pad - 4 * u);
+  ctx.fillStyle = 'rgba(16,12,28,.55)'; ctx.beginPath(); ctx.roundRect(pad - 4 * u, pad - 4 * u, panelW, 28 * u, 8 * u); ctx.fill();
+  for (let i = 0; i < nh; i++) { ctx.globalAlpha = i < p.hp ? 1 : 0.25; icon('heart', pad + i * 19 * u, pad, 20 * u); }
   ctx.globalAlpha = 1;
-  const kx = pad + Math.max(3, p.hp) * 19 * u + 14 * u;
   for (let i = 0; i < 3; i++) icon('key', kx + i * 21 * u, pad, 20 * u, i < p.keys ? null : SPR.key.ghost);
-  // mini-carte
-  const mw = Math.min(180, G.VW * 0.3) * u, mx = (cw - mw) / 2, my = pad + 8 * u;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#fff'; ctx.fillText(ts, tx, pad + 2 * u);
+  // mini-carte : centrée si la place le permet, sinon sous le panneau
+  const leftEnd = pad - 4 * u + panelW, rightStart = cw - G.hudRight;
+  let mw = Math.min(180 * u, rightStart - leftEnd - 30 * u), mx, my;
+  if (mw >= 70 * u) { mx = clamp((cw - mw) / 2, leftEnd + 14 * u, rightStart - 14 * u - mw); my = pad + 10 * u; }
+  else { mw = Math.min(180 * u, cw - 2 * pad - 12 * u); mx = pad + 2 * u; my = pad + 40 * u; }
   ctx.fillStyle = 'rgba(16,12,28,.55)'; ctx.beginPath(); ctx.roundRect(mx - 6 * u, my - 7 * u, mw + 12 * u, 14 * u, 7 * u); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(mx, my - 0.5 * u, mw, 1 * u);
   const mxp = wx => mx + wx / (L.W * TILE) * mw;
@@ -1513,14 +1538,10 @@ function drawHUD(ctx, cw, ch, z) {
   for (const f of L.flags) { ctx.fillStyle = f.on ? '#8dffb0' : 'rgba(255,255,255,.5)'; ctx.fillRect(mxp(f.x) - 1 * u, my - 4 * u, 2 * u, 5 * u); }
   for (const k of L.keys) if (!k.taken) { ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(mxp(k.x), my, 3 * u, 0, Math.PI * 2); ctx.fill(); }
   ctx.fillStyle = '#ff5a4a'; ctx.beginPath(); ctx.arc(mxp(p.x), my, 3.4 * u, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1 * u; ctx.stroke();
-  const tm = G.timer, ts = `${Math.floor(tm / 60)}:${String(Math.floor(tm % 60)).padStart(2, '0')}`;
-  ctx.font = `800 ${14 * u}px ${FONT}`; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-  ctx.fillStyle = 'rgba(16,12,28,.55)'; const tw = ctx.measureText(ts).width; ctx.beginPath(); ctx.roundRect(cw - pad - tw - 8 * u, pad - 4 * u, tw + 16 * u, 26 * u, 8 * u); ctx.fill();
-  ctx.fillStyle = '#fff'; ctx.fillText(ts, cw - pad, pad + 2 * u);
   ctx.textAlign = 'center';
   G.toasts.forEach((t, i) => {
     const a = Math.min(1, t.t * 6, (t.dur - t.t) * 3), y = ch * 0.2 + i * 30 * u;
-    ctx.globalAlpha = a; ctx.font = `800 ${15 * u}px ${FONT}`; const w = ctx.measureText(t.s).width;
+    ctx.globalAlpha = a; let fs = 15 * u; ctx.font = `800 ${fs}px ${FONT}`; let w = ctx.measureText(t.s).width; if (w > cw - 48 * u) { fs *= (cw - 48 * u) / w; ctx.font = `800 ${fs}px ${FONT}`; w = ctx.measureText(t.s).width; }
     ctx.fillStyle = 'rgba(16,12,28,.7)'; ctx.beginPath(); ctx.roundRect(cw / 2 - w / 2 - 12 * u, y - 4 * u, w + 24 * u, 26 * u, 13 * u); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.fillText(t.s, cw / 2, y + 1 * u);
   });
@@ -1569,7 +1590,8 @@ function showOverlay(s) {
   G.state = s === 'ready' ? 'ready' : G.state;
   const ov = $('#overlay'); ov.dataset.mode = s;
   const p = G.p;
-  const t = { ready: ['Trouve les 3 clés', 'Elles ouvrent la porte au bout du niveau. Saute sur les ennemis, évite les pics.', ['Jouer']], pause: ['Pause', '', ['Reprendre', 'Recommencer']], win: ['Niveau terminé !', `Temps : ${Math.floor(G.timer / 60)} min ${String(Math.floor(G.timer % 60)).padStart(2, '0')} s · seed ${G.L ? G.L.seedStr : ''}`, ['Niveau suivant', 'Rejouer']], over: ['Plus de cœurs…', p && p.check ? 'Tu peux repartir du dernier drapeau, avec tes clés.' : 'Retente ta chance depuis le début.', p && p.check ? ['Reprendre au drapeau', 'Recommencer'] : ['Recommencer']] }[s];
+  const t = { ready: ['Trouve les 3 clés', 'Elles ouvrent la porte au bout du niveau. Saute sur les ennemis, évite les pics.', isFS() ? ['Jouer'] : ['Jouer', 'Plein écran']], pause: ['Pause', G.L ? `Seed ${G.L.seedStr} · ${$('#len').selectedOptions[0].text} · ${$('#diff').selectedOptions[0].text} · ${THEMES[G.L.theme].name}` : '', ['Reprendre', 'Recommencer', 'Niveau au hasard', isFS() ? 'Quitter le plein écran' : 'Plein écran']], win: ['Niveau terminé !', `Temps : ${Math.floor(G.timer / 60)} min ${String(Math.floor(G.timer % 60)).padStart(2, '0')} s · seed ${G.L ? G.L.seedStr : ''}`, ['Niveau suivant', 'Rejouer']], over: ['Plus de cœurs…', p && p.check ? 'Tu peux repartir du dernier drapeau, avec tes clés.' : 'Retente ta chance depuis le début.', p && p.check ? ['Reprendre au drapeau', 'Recommencer'] : ['Recommencer']] }[s];
+  updatePauseBtn(); if (s === 'pause') G.toasts = [];
   if (!t) { ov.hidden = true; return; }
   ov.hidden = false; $('#ov-title').textContent = t[0]; $('#ov-text').textContent = t[1];
   $('#ov-btns').innerHTML = t[2].map((b, i) => `<button class="btn ${i ? '' : 'primary'}" data-a="${b}">${b}</button>`).join('');
@@ -1579,14 +1601,20 @@ $('#ov-btns').addEventListener('click', e => {
   if (a === 'Jouer' || a === 'Reprendre') { G.state = 'play'; showOverlay(null); }
   if (a === 'Recommencer' || a === 'Rejouer') { newLevel(); G.state = 'play'; showOverlay(null); }
   if (a === 'Niveau suivant') { $('#seed').value = String((seedNum(opts.seed) + 1) >>> 0); newLevel(); G.state = 'play'; showOverlay(null); }
+  if (a === 'Plein écran') { enterFS(); if (G.state === 'ready') { G.state = 'play'; showOverlay(null); } }
+  if (a === 'Quitter le plein écran') exitFS();
+  if (a === 'Niveau au hasard') { $('#seed').value = String(Math.floor(Math.random() * 999999)); newLevel(); G.state = 'play'; showOverlay(null); }
   if (a === 'Reprendre au drapeau') { const p = G.p; p.hp = 3; p.x = p.check.x; p.y = p.check.y; p.vx = p.vy = 0; p.inv = 1.6; G.state = 'play'; showOverlay(null); }
   cv.focus();
 });
 G.onState = () => showOverlay(G.state);
 function resize() {
-  const r = stage.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const r = stage.getBoundingClientRect(); if (!r.width || !r.height) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1, Math.sqrt(4.2e6 / (r.width * r.height))); // plafond ~4 Mpx pour garder 60 i/s en plein écran
   const w = Math.max(320, Math.round(r.width * dpr)), h = Math.max(180, Math.round(r.height * dpr));
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const asp = r.width / r.height; VH = asp < 1.25 ? Math.round(clamp(440 / asp, 352, 520)) : 352; // portrait : on recule un peu la caméra
+  G.hudRight = ($('#stagebtns').offsetWidth + 10) * (cv.width / r.width);
   G.z = cv.height / VH; G.VW = cv.width / G.z; G.tileCache = null;
 }
 const ro = new ResizeObserver(resize); ro.observe(stage);
@@ -1606,6 +1634,8 @@ window.addEventListener('keydown', e => {
   const k = KEYMAP[e.code];
   if (k) { e.preventDefault(); if (k === 'jump' && !e.repeat) { input.jumpPressed = true; if (G.state === 'ready') { G.state = 'play'; showOverlay(null); } } input[k] = true; sfx(''); }
   if (e.code === 'Enter' && (G.state === 'ready')) { G.state = 'play'; showOverlay(null); }
+  if (e.code === 'KeyF') { e.preventDefault(); toggleFS(); return; }
+  if (e.code === 'Escape' && isFS() && !fsEl()) { exitFS(); return; }
   if ((e.code === 'KeyP' || e.code === 'Escape') && (G.state === 'play' || G.state === 'pause')) { if (G.state === 'play') { G.state = 'pause'; showOverlay('pause'); } else { G.state = 'play'; showOverlay(null); } }
   if (e.code === 'KeyR' && G.state !== 'ready') { newLevel(); G.state = 'play'; showOverlay(null); }
 });
@@ -1625,7 +1655,38 @@ $('#rand').addEventListener('click', () => { $('#seed').value = String(Math.floo
 $('#next').addEventListener('click', () => { $('#seed').value = String((seedNum($('#seed').value || '1') + 1) >>> 0); newLevel(); });
 $('#snd').addEventListener('change', e => { G.sound = e.target.checked; });
 $('#fg').addEventListener('change', e => { G.fg = e.target.checked; });
-$('#full').addEventListener('click', async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await $('#stagewrap').requestFullscreen(); } catch (e) { $('#full').disabled = true; $('#full').title = 'Plein écran indisponible ici'; } });
+/* ---------- plein écran : API du navigateur si elle est permise, sinon plein fenêtre ---------- */
+const wrap = $('#stagewrap'), coarse = matchMedia('(pointer:coarse)');
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+const isFS = () => document.body.classList.contains('fs');
+let realFS = false;
+async function enterFS() {
+  if (isFS()) return;
+  document.body.classList.add('fs'); resize();
+  const rq = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+  if (rq) { try { await rq.call(wrap, { navigationUI: 'hide' }); } catch (e) { } }
+  try { if (fsEl() && screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape'); } catch (e) { }
+  setTimeout(resize, 80); cv.focus();
+  if (coarse.matches && innerHeight > innerWidth) toast('Tourne ton téléphone pour voir plus large', 3.5);
+  else if (!coarse.matches) toast('F ou Échap pour quitter le plein écran', 2.6);
+  if (G.state === 'pause') showOverlay('pause');
+}
+function exitFS() {
+  if (!isFS()) return;
+  document.body.classList.remove('fs');
+  if (fsEl()) { try { const ex = document.exitFullscreen || document.webkitExitFullscreen, r = ex.call(document); if (r && r.catch) r.catch(() => { }); } catch (e) { } }
+  try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) { }
+  if (G.state === 'play') { G.state = 'pause'; showOverlay('pause'); } else if (G.state === 'pause') showOverlay('pause'); else showOverlay(G.state);
+  setTimeout(resize, 80);
+}
+const toggleFS = () => isFS() ? exitFS() : enterFS();
+for (const ev of ['fullscreenchange', 'webkitfullscreenchange']) document.addEventListener(ev, () => { if (fsEl()) realFS = true; else if (realFS) { realFS = false; exitFS(); } resize(); });
+window.addEventListener('resize', resize);
+function updatePauseBtn() { const b = $('#btn-pause'); if (b) { const paused = G.state === 'pause'; b.classList.toggle('paused', paused); b.setAttribute('aria-label', paused ? 'Reprendre' : 'Pause'); } }
+$('#full').addEventListener('click', toggleFS);
+$('#btn-fs').addEventListener('click', e => { e.stopPropagation(); sfx(''); toggleFS(); });
+$('#btn-pause').addEventListener('click', e => { e.stopPropagation(); sfx(''); if (G.state === 'play') { G.state = 'pause'; showOverlay('pause'); } else if (G.state === 'pause') { G.state = 'play'; showOverlay(null); } cv.focus(); });
+for (const b of $$('#stagebtns button')) b.addEventListener('pointerdown', e => e.stopPropagation());
 $('#copyseed').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#seed').value); $('#copyseed').textContent = 'Copiée'; setTimeout(() => $('#copyseed').textContent = 'Copier', 1200); } catch (e) { } });
 
 /* ---------- onglets ---------- */
